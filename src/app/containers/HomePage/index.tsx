@@ -1,25 +1,21 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { NavBar } from '../NavBar';
-import { Masthead } from './Masthead';
-import { Features } from './Features';
-import { PageWrapper } from 'app/components/PageWrapper';
-
+import { Row, Col } from 'reactstrap';
 export function HomePage() {
   return (
     <>
       <Helmet>
-        <title>Home Page</title>
+        <title>Home</title>
         <meta
           name="description"
-          content="A React Boilerplate application homepage"
+          content="Xurpresa is an online service provider who cater suprises."
         />
       </Helmet>
-      <NavBar />
-      <PageWrapper>
-        <Masthead />
-        <Features />
-      </PageWrapper>
+      <Row>
+        <Col lg="12">
+          <h1 className="text-center">Home page details</h1>
+        </Col>
+      </Row>
     </>
   );
 }

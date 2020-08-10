@@ -23,15 +23,23 @@ interface Props {}
 export function AgentAccountSetup(props: Props) {
   const { regions } = philData.allRegions;
   const { provinces } = philData.allProvinces;
-  //const { citiesAndMunicipals } = philData.allCitiesAndMunicipal;
+  const { citiesAndMunicipals } = philData.allCitiesAndMunicipal;
   //console.log(citiesAndMunicipals);
-  const [selectedRegions, selectRegions] = useState([]);
-  const [selectedProvinces, selectProvinces] = useState([]);
+  const [selectedRegions, selectRegions] = useState([] as any);
+  const [filteredProvinces, filterProvinces] = useState([]);
+  const [filteredCM, filterCM] = useState([] as any);
 
   useEffect(() => {
-    console.log(selectedRegions);
-    console.log(selectedProvinces);
-  }, [selectedRegions, selectedProvinces]);
+    var filteredProvinces = provinces.filter(function (province) {
+      if (selectedRegions.includes(province.reg_code)) {
+        return province;
+      } else {
+        return null;
+      }
+    });
+    filterProvinces(filteredProvinces);
+  }, [selectedRegions, provinces, filterProvinces]);
+
   return (
     <div>
       <Grid fluid className="mt-4">
@@ -56,9 +64,8 @@ export function AgentAccountSetup(props: Props) {
                   placeholder="Provinces"
                   labelKey="name"
                   valueKey="prov_code"
-                  data={[]}
+                  data={filteredProvinces}
                   block
-                  onSelect={selectProvinces}
                 />
                 <HelpBlock>
                   Select Province if you want to specify your area.
@@ -72,7 +79,6 @@ export function AgentAccountSetup(props: Props) {
                   valueKey="prov_code"
                   data={[]}
                   block
-                  onSelect={selectProvinces}
                 />
                 <HelpBlock>
                   Select Province if you want to specify your area.

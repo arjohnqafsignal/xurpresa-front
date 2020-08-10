@@ -13,6 +13,7 @@ import * as ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import * as serviceWorker from 'serviceWorker';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'rsuite/dist/styles/rsuite-default.css';
 import 'sanitize.css/sanitize.css';
 
 // Import root app

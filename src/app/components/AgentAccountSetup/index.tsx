@@ -34,7 +34,6 @@ export function AgentAccountSetup(props: Props) {
   const [filteredCM, filterCM] = useState([] as any);
   const token = localStorage.getItem('token');
   const user = JSON.parse(localStorage.getItem('user') || '');
-  console.log(user);
   const handleSubmit = evt => {
     evt.preventDefault();
     const areaCoverage = {
@@ -42,7 +41,7 @@ export function AgentAccountSetup(props: Props) {
       provinces: selectedProvinces,
       citiesMunicipalities: selectedCM,
     };
-    console.log(areaCoverage);
+    console.log('object');
   };
 
   useEffect(() => {
@@ -75,11 +74,11 @@ export function AgentAccountSetup(props: Props) {
     <div>
       <Row className="mt-4">
         <Col md={12}>
-          <h1 className="text-center">Setup Agent Account</h1>
+          <h1>Setup Agent Account</h1>
           <Form onSubmit={handleSubmit}>
             <Row>
               <Col md={6}>
-                <h4>Profile Picture</h4>
+                <h4>Update Profile Picture</h4>
                 <FormGroup>
                   <Uploader
                     fileListVisible={false}
@@ -119,10 +118,11 @@ export function AgentAccountSetup(props: Props) {
                       )}
                     </button>
                   </Uploader>
+                  <FormText>Click photo to update.</FormText>
                 </FormGroup>
               </Col>
               <Col md={6}>
-                <h4>Area Coverage</h4>
+                <h4>Enter Area Coverage</h4>
                 <FormGroup>
                   <Label>Select Regions</Label>
                   <TagPicker
@@ -162,7 +162,7 @@ export function AgentAccountSetup(props: Props) {
               </Col>
             </Row>
 
-            <FormGroup>
+            <FormGroup className="float-right">
               <Button color="success">Save &amp; Next</Button>
             </FormGroup>
           </Form>

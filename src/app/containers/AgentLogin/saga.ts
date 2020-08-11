@@ -8,7 +8,7 @@ export function* doLogin({ payload }) {
   if (loginResult.status === 'success') {
     const { data } = loginResult.data;
     localStorage.setItem('user', JSON.stringify(data.agent));
-    localStorage.setItem('token', JSON.stringify(data.token));
+    localStorage.setItem('token', data.token);
     yield put(
       actions.verifySuccess('Account successfully verified! Please login.'),
     );

@@ -1,0 +1,62 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<App /> should render and match the snapshot 1`] = `
+<BrowserRouter>
+  <Helmet
+    defaultTitle="Xurpresa"
+    defer={true}
+    encodeSpecialCharacters={true}
+    titleTemplate="%s - Xurpresa"
+  >
+    <meta
+      content="Home of Surprises"
+      name="description"
+    />
+  </Helmet>
+  <Header />
+  <Container
+    tag="div"
+  >
+    <Switch>
+      <Route
+        component={[Function]}
+        exact={true}
+        path="/"
+      />
+      <Route
+        component={[Function]}
+        exact={true}
+        path="/become-agent"
+      />
+      <Route
+        component={[Function]}
+        path="/agent-login"
+      />
+      <Route
+        component={[Function]}
+        path="/verify"
+      />
+      <Route
+        component={[Function]}
+        path="/signin"
+      />
+      <ProtectedRoute
+        component={[Function]}
+        path="/agent-dashboard"
+      />
+      <ProtectedRoute
+        component={[Function]}
+        path="/agent-profile"
+      />
+      <ProtectedRoute
+        component={[Function]}
+        path="/agent-password"
+      />
+      <Route
+        component={[Function]}
+      />
+    </Switch>
+  </Container>
+  <UNDEFINED />
+</BrowserRouter>
+`;

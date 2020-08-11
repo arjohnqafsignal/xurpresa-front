@@ -35,7 +35,7 @@ export function AgentDashboard(props: Props) {
         <meta name="description" content="Description of AgentDashboard" />
       </Helmet>
       <div>
-        {user.recent ? (
+        {!user.recent ? (
           <AgentAccountSetup />
         ) : (
           <Row>

@@ -25,6 +25,12 @@ export function Header(props: Props) {
   const [dropdownOpen, setOpen] = useState(false);
 
   const toggleDropDown = () => setOpen(!dropdownOpen);
+
+  const doLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '/';
+  };
   return (
     <div>
       <Navbar color="light" light expand="md">
@@ -53,7 +59,7 @@ export function Header(props: Props) {
                   <DropdownItem>Change Password</DropdownItem>
                 </Link>
                 <DropdownItem divider />
-                <DropdownItem>Logout</DropdownItem>
+                <DropdownItem onClick={doLogout}>Logout</DropdownItem>
               </DropdownMenu>
             </ButtonDropdown>
           ) : (

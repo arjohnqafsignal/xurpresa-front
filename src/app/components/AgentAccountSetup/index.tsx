@@ -7,6 +7,8 @@ import React, { useEffect, useState } from 'react';
 import { TagPicker, Uploader, Alert, Loader, Icon } from 'rsuite';
 import { Row, Col, Form, FormGroup, Button, Label, FormText } from 'reactstrap';
 import { philData } from 'addresspinas';
+import { updateUserAuth } from './../../helpers/localStorage';
+import { putApi } from './../../../utils/api';
 
 interface Props {}
 
@@ -22,18 +24,19 @@ const styles = {
   height: 150,
 };
 export function AgentAccountSetup(props: Props) {
+  const token = localStorage.getItem('token');
+  const user = JSON.parse(localStorage.getItem('user') || '');
+  const profilePhoto = user.photo.location ? user.photo.location : null;
   const { regions } = philData.allRegions;
   const { provinces } = philData.allProvinces;
   const { citiesAndMunicipals } = philData.allCitiesAndMunicipal;
   const [uploading, setUploading] = useState(false);
-  const [fileInfo, setFileInfo] = useState(null as any);
+  const [fileInfo, setFileInfo] = useState(profilePhoto as any);
   const [selectedRegions, selectRegions] = useState([] as any);
   const [selectedProvinces, selectProvinces] = useState([] as any);
   const [selectedCM, selectCM] = useState([] as any);
   const [filteredProvinces, filterProvinces] = useState([] as any);
   const [filteredCM, filterCM] = useState([] as any);
-  const token = localStorage.getItem('token');
-  const user = JSON.parse(localStorage.getItem('user') || '');
   const handleSubmit = evt => {
     evt.preventDefault();
     const areaCoverage = {
@@ -41,7 +44,11 @@ export function AgentAccountSetup(props: Props) {
       provinces: selectedProvinces,
       citiesMunicipalities: selectedCM,
     };
-    console.log('object');
+    console.log(areaCoverage);
+    // const result = putApi(`agent/update-coverage/${user._id}`, {
+    //   areaCoverage,
+    // });
+    // console.log(result);
   };
 
   useEffect(() => {
@@ -92,9 +99,10 @@ export function AgentAccountSetup(props: Props) {
                         setFileInfo(value);
                       });
                     }}
-                    onSuccess={(response: Object, file) => {
+                    onSuccess={(response: any, file) => {
                       setUploading(false);
                       Alert.success('Uploaded successfully');
+                      updateUserAuth(response.token, response.user);
                       console.log(response);
                     }}
                     onError={(reason: Object) => {

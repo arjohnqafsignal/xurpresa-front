@@ -1,7 +1,7 @@
 import { put, takeLatest } from 'redux-saga/effects';
 import { actions } from './slice';
 
-import doApi from '../../../utils/api';
+import { doApi } from '../../../utils/api';
 export function* doVerify({ payload }) {
   const verifyResult = yield doApi('agent/verify', {
     verificationToken: payload,

@@ -1,7 +1,7 @@
 import { take, call, put, select, takeLatest } from 'redux-saga/effects';
 import { actions } from './slice';
 
-import doApi from '../../../utils/api';
+import { doApi } from '../../../utils/api';
 
 export function* doLogin({ payload }) {
   const loginResult = yield doApi('agent/login', payload);

@@ -5,7 +5,18 @@
  */
 import React, { useEffect, useState } from 'react';
 import { TagPicker, Uploader, Alert, Loader, Icon } from 'rsuite';
-import { Row, Col, Form, FormGroup, Button, Label, FormText } from 'reactstrap';
+import {
+  Row,
+  Col,
+  Form,
+  FormGroup,
+  Button,
+  Label,
+  FormText,
+  Card,
+  CardBody,
+} from 'reactstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { philData } from 'addresspinas';
 import { updateUserAuth } from './../../helpers/localStorage';
 import { putApi } from './../../../utils/api';
@@ -45,10 +56,10 @@ export function AgentAccountSetup(props: Props) {
       citiesMunicipalities: selectedCM,
     };
     console.log(areaCoverage);
-    // const result = putApi(`agent/update-coverage/${user._id}`, {
-    //   areaCoverage,
-    // });
-    // console.log(result);
+    const result = putApi(`agent/update-coverage/${user._id}`, {
+      areaCoverage,
+    });
+    console.log(result);
   };
 
   useEffect(() => {
@@ -84,9 +95,9 @@ export function AgentAccountSetup(props: Props) {
           <h1>Setup Agent Account</h1>
           <Form onSubmit={handleSubmit}>
             <Row>
-              <Col md={6}>
+              <Col md={4}>
                 <h4>Update Profile Picture</h4>
-                <FormGroup>
+                <FormGroup className="text-center">
                   <Uploader
                     fileListVisible={false}
                     listType="picture"
@@ -169,9 +180,34 @@ export function AgentAccountSetup(props: Props) {
                 </FormGroup>
               </Col>
             </Row>
-
-            <FormGroup className="float-right">
-              <Button color="success">Save &amp; Next</Button>
+            <Row>
+              <Col md={12}>
+                <h4>Services Offer</h4>
+                <Card>
+                  <CardBody>
+                    <Row>
+                      <Col md={3}>
+                        <Card className="border border-light rounded p-3">
+                          <FontAwesomeIcon icon={['fas', 'coffee']} />
+                          asdasda
+                        </Card>
+                      </Col>
+                      <Col md={3}>
+                        <Card>b</Card>
+                      </Col>
+                      <Col md={3}>
+                        <Card>c</Card>
+                      </Col>
+                      <Col md={3}>
+                        <Card>d</Card>
+                      </Col>
+                    </Row>
+                  </CardBody>
+                </Card>
+              </Col>
+            </Row>
+            <FormGroup className="float-right mt-3">
+              <Button color="success">Submit</Button>
             </FormGroup>
           </Form>
         </Col>

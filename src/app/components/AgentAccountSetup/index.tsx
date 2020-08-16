@@ -12,6 +12,7 @@ import {
   Icon,
   Modal,
   Toggle,
+  Panel,
 } from 'rsuite';
 import {
   Row,
@@ -233,13 +234,46 @@ export function AgentAccountSetup(props: Props) {
                         </Card>
                       </Col>
                       <Col md={3}>
-                        <Card>b</Card>
+                        <Panel
+                          shaded
+                          bordered
+                          bodyFill
+                          style={{ display: 'inline-block', width: 240 }}
+                        >
+                          <img
+                            src="https://via.placeholder.com/240x240"
+                            height="240"
+                            alt="hehe"
+                          />
+                        </Panel>
                       </Col>
                       <Col md={3}>
-                        <Card>c</Card>
+                        <Panel
+                          shaded
+                          bordered
+                          bodyFill
+                          style={{ display: 'inline-block', width: 240 }}
+                        >
+                          <img
+                            src="https://via.placeholder.com/240x240"
+                            height="240"
+                            alt="hehe"
+                          />
+                        </Panel>
                       </Col>
                       <Col md={3}>
-                        <Card>d</Card>
+                        <Panel
+                          shaded
+                          bordered
+                          bodyFill
+                          style={{ display: 'inline-block', width: 240 }}
+                        >
+                          <img
+                            src="https://via.placeholder.com/240x240"
+                            height="240"
+                            alt="hehe"
+                          />
+                        </Panel>
                       </Col>
                     </Row>
                   </CardBody>

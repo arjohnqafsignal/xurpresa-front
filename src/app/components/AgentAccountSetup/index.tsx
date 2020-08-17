@@ -37,7 +37,7 @@ import {
 
 import { philData } from 'addresspinas';
 import { updateUserAuth } from './../../helpers/localStorage';
-import { putApi } from './../../../utils/api';
+import { postApi, putApi } from './../../../utils/api';
 import { FileType } from 'rsuite/lib/Uploader';
 
 interface Props {}
@@ -68,17 +68,34 @@ export function AgentAccountSetup(props: Props) {
   const [filteredProvinces, filterProvinces] = useState([] as any);
   const [filteredCM, filterCM] = useState([] as any);
   const [addModal, setAddModal] = useState(false);
+  const [serviceURL, setServiceURL] = useState('' as any);
+  const [uploadURL, setUploadURL] = useState('' as any);
   const [serviceName, setServiceName] = useState(null);
   const [servicePrice, setServicePrice] = useState(null);
+  const [servicePersonalized, setServicePersonalized] = useState(false);
+  const [servicePackage, setServicePackage] = useState(false);
+  const [serviceDescription, setServiceDescription] = useState(null);
   const [servicePhotos, setServicePhotos] = useState([] as any);
+  const [addServiceButton, setServiceButton] = useState(true);
   let serviceUploader;
   const handleChange = files => {
+    files.length > 0 && setServiceButton(false);
     setServicePhotos(files);
   };
 
   const handleServiceSubmit = () => {
-    console.log('process other service');
-    return false;
+    postApi(`service/add-service/${user._id}`, {
+      name: serviceName,
+      price: servicePrice,
+      description: serviceDescription,
+      personalized: servicePersonalized,
+      package: servicePackage,
+    }).then(value => {
+      setUploadURL(
+        `http://localhost:9100/api/service/service-photos/${value.data._id}`,
+      );
+      //setAddModal(false);
+    });
   };
 
   const handleSubmit = evt => {
@@ -112,6 +129,7 @@ export function AgentAccountSetup(props: Props) {
     });
     filterProvinces(filteredProvinces);
     filterCM(cms);
+    uploadURL && serviceUploader.start();
   }, [
     selectedRegions,
     provinces,
@@ -119,6 +137,8 @@ export function AgentAccountSetup(props: Props) {
     citiesAndMunicipals,
     selectedProvinces,
     filterCM,
+    uploadURL,
+    serviceUploader,
   ]);
 
   return (
@@ -218,59 +238,63 @@ export function AgentAccountSetup(props: Props) {
                 <Card>
                   <CardBody>
                     <Row>
-                      <Col md={3}>
+                      <Col md={2}>
                         <Card
                           className="btn border border-light rounded p-3 text-center"
                           onClick={() => setAddModal(true)}
+                          style={{
+                            display: 'inline-block',
+                            width: 150,
+                            height: 150,
+                          }}
                         >
                           <p>
                             <Icon
                               icon="plus-square"
-                              size="2x"
-                              className="mr-2"
+                              size="5x"
+                              className="mx-auto"
                             />
-                            <span className="text-uppercase">Add New</span>
                           </p>
                         </Card>
                       </Col>
-                      <Col md={3}>
+                      <Col md={2}>
                         <Panel
                           shaded
                           bordered
                           bodyFill
-                          style={{ display: 'inline-block', width: 240 }}
+                          style={{ display: 'inline-block', width: 150 }}
                         >
                           <img
-                            src="https://via.placeholder.com/240x240"
-                            height="240"
+                            src="https://xupresa-files.s3-ap-southeast-1.amazonaws.com/services/1597656179831-cake-15.jpg"
+                            height="150"
                             alt="hehe"
                           />
                         </Panel>
                       </Col>
-                      <Col md={3}>
+                      <Col md={2}>
                         <Panel
                           shaded
                           bordered
                           bodyFill
-                          style={{ display: 'inline-block', width: 240 }}
+                          style={{ display: 'inline-block', width: 150 }}
                         >
                           <img
-                            src="https://via.placeholder.com/240x240"
-                            height="240"
+                            src="https://via.placeholder.com/150?text=Xurpresa"
+                            height="150"
                             alt="hehe"
                           />
                         </Panel>
                       </Col>
-                      <Col md={3}>
+                      <Col md={2}>
                         <Panel
                           shaded
                           bordered
                           bodyFill
-                          style={{ display: 'inline-block', width: 240 }}
+                          style={{ display: 'inline-block', width: 150 }}
                         >
                           <img
-                            src="https://via.placeholder.com/240x240"
-                            height="240"
+                            src="https://via.placeholder.com/150?text=Xurpresa"
+                            height="150"
                             alt="hehe"
                           />
                         </Panel>
@@ -295,8 +319,9 @@ export function AgentAccountSetup(props: Props) {
         <Modal.Header>
           <Modal.Title>New Service Offer</Modal.Title>
         </Modal.Header>
-        <Modal.Body>
-          <AvForm>
+
+        <AvForm onValidSubmit={handleServiceSubmit}>
+          <Modal.Body>
             <Row>
               <Col>
                 <AvField
@@ -352,7 +377,7 @@ export function AgentAccountSetup(props: Props) {
                       value: 50,
                     },
                   }}
-                  onChange={e => setServiceName(e.target.value)}
+                  onChange={e => setServiceDescription(e.target.value)}
                 />
               </Col>
             </Row>
@@ -364,9 +389,11 @@ export function AgentAccountSetup(props: Props) {
               </Col>
               <Col>
                 <Toggle
-                  id="personalized"
                   checkedChildren={<Icon icon="check" />}
                   unCheckedChildren={<Icon icon="close" />}
+                  onChange={(checked: boolean) => {
+                    setServicePersonalized(checked);
+                  }}
                 />
               </Col>
             </Row>
@@ -380,6 +407,9 @@ export function AgentAccountSetup(props: Props) {
                 <Toggle
                   checkedChildren={<Icon icon="check" />}
                   unCheckedChildren={<Icon icon="close" />}
+                  onChange={(checked: boolean) => {
+                    setServicePackage(checked);
+                  }}
                 />
               </Col>
             </Row>
@@ -389,10 +419,17 @@ export function AgentAccountSetup(props: Props) {
                 <br />
                 <Uploader
                   accept="jpg,png"
+                  name="photos"
                   multiple
                   listType="picture"
                   autoUpload={false}
+                  action={uploadURL}
+                  headers={{ Authorization: `Bearer ${token}` }}
                   onChange={handleChange}
+                  onError={(reason: Object) => {
+                    console.log(reason);
+                    Alert.error('Upload failed');
+                  }}
                   ref={ref => {
                     serviceUploader = ref;
                   }}
@@ -403,23 +440,17 @@ export function AgentAccountSetup(props: Props) {
                 </Uploader>
               </Col>
             </Row>
-          </AvForm>
-        </Modal.Body>
-        <Modal.Footer className="mt-3">
-          <Button
-            onClick={() => {
-              const result = handleServiceSubmit();
-              result && serviceUploader.start();
-            }}
-            appearance="primary"
-          >
-            Save
-          </Button>{' '}
-          |{' '}
-          <Button onClick={() => setAddModal(false)} appearance="subtle">
-            Cancel
-          </Button>
-        </Modal.Footer>
+          </Modal.Body>
+          <Modal.Footer className="mt-3">
+            <Button disabled={addServiceButton} color="secondary">
+              Save
+            </Button>{' '}
+            |{' '}
+            <Button onClick={() => setAddModal(false)} color="danger">
+              Cancel
+            </Button>
+          </Modal.Footer>
+        </AvForm>
       </Modal>
     </div>
   );

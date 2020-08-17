@@ -21,6 +21,27 @@ const doApi = (url, payload) => {
   return result;
 };
 
+const postApi = (url, payload) => {
+  const result = axios
+    .post('http://localhost:9100/api/' + url, payload, config)
+    .then(response => {
+      return {
+        status: 'success',
+        data: response,
+      };
+    })
+    .then(response => {
+      return response.data;
+    })
+    .catch(error => {
+      return {
+        status: 'error',
+        data: error.response.status,
+      };
+    });
+  return result;
+};
+
 const putApi = (url, payload) => {
   const result = axios
     .put('http://localhost:9100/api/' + url, payload, config)
@@ -39,4 +60,4 @@ const putApi = (url, payload) => {
   return result;
 };
 
-export { doApi, putApi };
+export { doApi, putApi, postApi };

@@ -3,7 +3,7 @@
  * AgentAccountSetup
  *
  */
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   TagPicker,
   Uploader,
@@ -320,7 +320,7 @@ export function AgentAccountSetup(props: Props) {
           <Modal.Title>New Service Offer</Modal.Title>
         </Modal.Header>
 
-        <AvForm onValidSubmit={handleServiceSubmit}>
+        <AvForm>
           <Modal.Body>
             <Row>
               <Col>
@@ -442,7 +442,11 @@ export function AgentAccountSetup(props: Props) {
             </Row>
           </Modal.Body>
           <Modal.Footer className="mt-3">
-            <Button disabled={addServiceButton} color="secondary">
+            <Button
+              onClick={handleServiceSubmit}
+              disabled={addServiceButton}
+              color="secondary"
+            >
               Save
             </Button>{' '}
             |{' '}

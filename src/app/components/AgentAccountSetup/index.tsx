@@ -37,9 +37,7 @@ import {
 
 import { philData } from 'addresspinas';
 import { updateUserAuth } from './../../helpers/localStorage';
-import { postApi, putApi } from './../../../utils/api';
-import { FileType } from 'rsuite/lib/Uploader';
-
+import { postApi, putApi, getApi } from './../../../utils/api';
 interface Props {}
 
 function previewFile(file, callback) {
@@ -68,8 +66,10 @@ export function AgentAccountSetup(props: Props) {
   const [filteredProvinces, filterProvinces] = useState([] as any);
   const [filteredCM, filterCM] = useState([] as any);
   const [addModal, setAddModal] = useState(false);
+  const [editModal, setEditModal] = useState(false);
   const [serviceURL, setServiceURL] = useState('' as any);
   const [uploadURL, setUploadURL] = useState('' as any);
+  const [uploadEditURL, setUploadEditURL] = useState('' as any);
   const [serviceName, setServiceName] = useState(null);
   const [servicePrice, setServicePrice] = useState(null);
   const [servicePersonalized, setServicePersonalized] = useState(false);
@@ -77,12 +77,47 @@ export function AgentAccountSetup(props: Props) {
   const [serviceDescription, setServiceDescription] = useState(null);
   const [servicePhotos, setServicePhotos] = useState([] as any);
   const [addServiceButton, setServiceButton] = useState(true);
-  let serviceUploader;
+  const [services, setServices] = useState([] as any);
+
+  //Edit Service Form
+  const [editServiceID, setEditServiceID] = useState('');
+  const [editServiceName, setEditServiceName] = useState('');
+  const [editServicePrice, setEditServicePrice] = useState('');
+  const [editServiceDescription, setEditServiceDescription] = useState('');
+  const [editServicePersonalized, setEditServicePersonalized] = useState(false);
+  const [editServicePackage, setEditServicePackage] = useState(false);
+  const [editServicePhotos, setEditServicePhotos] = useState([]);
+  let serviceUploader, serviceEditUploader;
   const handleChange = files => {
     files.length > 0 && setServiceButton(false);
     setServicePhotos(files);
+    console.log(files);
   };
 
+  const handleEditServiceSubmit = () => {
+    postApi(`service/edit-service/${editServiceID}`, {
+      name: editServiceName,
+      price: editServicePrice,
+      description: editServiceDescription,
+      personalized: editServicePersonalized,
+      package: editServicePackage,
+    }).then(value => {
+      setUploadEditURL(
+        `http://localhost:9100/api/service/edit-service-photos/${value.data._id}`,
+      );
+      // const timer = setTimeout(() => {
+      //   getApi(`service/get-services/${user._id}`)
+      //     .then(response => response)
+      //     .then(response => {
+      //       setServices(response.data);
+      //     })
+      //     .catch(error => {
+      //       console.log(error);
+      //     });
+      //   setAddModal(false);
+      // }, 2000);
+    });
+  };
   const handleServiceSubmit = () => {
     postApi(`service/add-service/${user._id}`, {
       name: serviceName,
@@ -94,7 +129,17 @@ export function AgentAccountSetup(props: Props) {
       setUploadURL(
         `http://localhost:9100/api/service/service-photos/${value.data._id}`,
       );
-      //setAddModal(false);
+      // const timer = setTimeout(() => {
+      //   getApi(`service/get-services/${user._id}`)
+      //     .then(response => response)
+      //     .then(response => {
+      //       setServices(response.data);
+      //     })
+      //     .catch(error => {
+      //       console.log(error);
+      //     });
+      //   setAddModal(false);
+      // }, 2000);
     });
   };
 
@@ -105,12 +150,21 @@ export function AgentAccountSetup(props: Props) {
       provinces: selectedProvinces,
       citiesMunicipalities: selectedCM,
     };
-    console.log(areaCoverage);
     const result = putApi(`agent/update-coverage/${user._id}`, {
       areaCoverage,
     });
-    console.log(result);
   };
+
+  useEffect(() => {
+    getApi(`service/get-services/${user._id}`)
+      .then(response => response)
+      .then(response => {
+        setServices(response.data);
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  }, [user._id]);
 
   useEffect(() => {
     var filteredProvinces = provinces.filter(function (province) {
@@ -257,48 +311,51 @@ export function AgentAccountSetup(props: Props) {
                           </p>
                         </Card>
                       </Col>
-                      <Col md={2}>
-                        <Panel
-                          shaded
-                          bordered
-                          bodyFill
-                          style={{ display: 'inline-block', width: 150 }}
-                        >
-                          <img
-                            src="https://xupresa-files.s3-ap-southeast-1.amazonaws.com/services/1597656179831-cake-15.jpg"
-                            height="150"
-                            alt="hehe"
-                          />
-                        </Panel>
-                      </Col>
-                      <Col md={2}>
-                        <Panel
-                          shaded
-                          bordered
-                          bodyFill
-                          style={{ display: 'inline-block', width: 150 }}
-                        >
-                          <img
-                            src="https://via.placeholder.com/150?text=Xurpresa"
-                            height="150"
-                            alt="hehe"
-                          />
-                        </Panel>
-                      </Col>
-                      <Col md={2}>
-                        <Panel
-                          shaded
-                          bordered
-                          bodyFill
-                          style={{ display: 'inline-block', width: 150 }}
-                        >
-                          <img
-                            src="https://via.placeholder.com/150?text=Xurpresa"
-                            height="150"
-                            alt="hehe"
-                          />
-                        </Panel>
-                      </Col>
+                      {services &&
+                        services.map(service => {
+                          let [primaryPhoto] = service.photos;
+                          return (
+                            <Col
+                              key={service._id}
+                              md={2}
+                              className="btn"
+                              onClick={() => {
+                                const uploadedPhotos = service.photos;
+                                const photos = uploadedPhotos.map(e => {
+                                  return {
+                                    name: e.key,
+                                    fileKey: e.key,
+                                    url: e.location,
+                                  };
+                                });
+                                console.log(photos);
+                                setEditServiceID(service._id);
+                                setEditServicePhotos(photos);
+                                setEditServiceName(service.name);
+                                setEditServicePrice(service.price);
+                                setEditServiceDescription(service.description);
+                                setEditServicePackage(service.package);
+                                setEditServicePersonalized(
+                                  service.personalized,
+                                );
+                                setEditModal(true);
+                              }}
+                            >
+                              <Panel
+                                shaded
+                                bordered
+                                bodyFill
+                                style={{ display: 'inline-block', width: 150 }}
+                              >
+                                <img
+                                  src={primaryPhoto.location}
+                                  height="150"
+                                  alt={service.name}
+                                />
+                              </Panel>
+                            </Col>
+                          );
+                        })}
                     </Row>
                   </CardBody>
                 </Card>
@@ -348,7 +405,7 @@ export function AgentAccountSetup(props: Props) {
                   <InputGroup>
                     <InputGroupAddon addonType="prepend">₱</InputGroupAddon>
                     <AvInput
-                      name="rank"
+                      name="price"
                       id="price"
                       type="number"
                       required
@@ -451,6 +508,161 @@ export function AgentAccountSetup(props: Props) {
             </Button>{' '}
             |{' '}
             <Button onClick={() => setAddModal(false)} color="danger">
+              Cancel
+            </Button>
+          </Modal.Footer>
+        </AvForm>
+      </Modal>
+
+      <Modal
+        backdrop="static"
+        show={editModal}
+        onHide={() => {
+          setEditModal(false);
+        }}
+        size={'md'}
+      >
+        <Modal.Header>
+          <Modal.Title>Edit Service</Modal.Title>
+        </Modal.Header>
+
+        <AvForm>
+          <Modal.Body>
+            <Row>
+              <Col>
+                <AvField
+                  name="name"
+                  label="Service Name"
+                  value={editServiceName}
+                  required
+                  validate={{
+                    required: {
+                      value: true,
+                      errorMessage: 'Please provide service name.',
+                    },
+                    maxLength: {
+                      value: 50,
+                    },
+                  }}
+                  onChange={e => setServiceName(e.target.value)}
+                />
+              </Col>
+            </Row>
+            <Row>
+              <Col>
+                <AvGroup>
+                  <Label for="price">Price</Label>
+                  <InputGroup>
+                    <InputGroupAddon addonType="prepend">₱</InputGroupAddon>
+                    <AvInput
+                      name="price"
+                      value={editServicePrice}
+                      id="price"
+                      type="number"
+                      required
+                      onChange={e => setServicePrice(e.target.value)}
+                    />
+                    <AvFeedback>
+                      Please provide valid price for your service.
+                    </AvFeedback>
+                  </InputGroup>
+                </AvGroup>
+              </Col>
+            </Row>
+            <Row>
+              <Col>
+                <AvField
+                  name="description"
+                  label="Description"
+                  type="textarea"
+                  value={editServiceDescription}
+                  required
+                  validate={{
+                    required: {
+                      value: true,
+                      errorMessage: 'Please provide short description.',
+                    },
+                    maxLength: {
+                      value: 50,
+                    },
+                  }}
+                  onChange={e => setServiceDescription(e.target.value)}
+                />
+              </Col>
+            </Row>
+            <Row>
+              <Col md={4}>
+                <Label for="personalized" className="mr-3">
+                  Personalized
+                </Label>
+              </Col>
+              <Col>
+                <Toggle
+                  checked={editServicePersonalized}
+                  checkedChildren={<Icon icon="check" />}
+                  unCheckedChildren={<Icon icon="close" />}
+                  onChange={(checked: boolean) => {
+                    setEditServicePersonalized(checked);
+                  }}
+                />
+              </Col>
+            </Row>
+            <Row>
+              <Col md={4}>
+                <Label for="package" className="mr-5">
+                  Package
+                </Label>
+              </Col>
+              <Col>
+                <Toggle
+                  checked={editServicePackage}
+                  checkedChildren={<Icon icon="check" />}
+                  unCheckedChildren={<Icon icon="close" />}
+                  onChange={(checked: boolean) => {
+                    setEditServicePackage(checked);
+                  }}
+                />
+              </Col>
+            </Row>
+            <Row>
+              <Col>
+                <Label for="images">Upload Images</Label>
+                <br />
+                <Uploader
+                  accept="jpg,png"
+                  name="photos"
+                  multiple
+                  listType="picture"
+                  defaultFileList={editServicePhotos}
+                  autoUpload={false}
+                  action={uploadURL}
+                  headers={{ Authorization: `Bearer ${token}` }}
+                  onChange={handleChange}
+                  onError={(reason: Object) => {
+                    console.log(reason);
+                    Alert.error('Upload failed');
+                  }}
+                  ref={ref => {
+                    serviceEditUploader = ref;
+                  }}
+                >
+                  <button>
+                    <Icon icon="camera-retro" size="lg" />
+                  </button>
+                </Uploader>
+              </Col>
+            </Row>
+          </Modal.Body>
+          <Modal.Footer className="mt-3">
+            <Button
+              onClick={handleEditServiceSubmit}
+              disabled={addServiceButton}
+              color="secondary"
+            >
+              Save
+            </Button>{' '}
+            |{' '}
+            <Button onClick={() => setEditModal(false)} color="danger">
               Cancel
             </Button>
           </Modal.Footer>

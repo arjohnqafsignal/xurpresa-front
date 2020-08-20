@@ -60,4 +60,8 @@ const putApi = (url, payload) => {
   return result;
 };
 
-export { doApi, putApi, postApi };
+const getApi = url => {
+  return axios.get('http://localhost:9100/api/' + url, config);
+};
+
+export { doApi, putApi, postApi, getApi };

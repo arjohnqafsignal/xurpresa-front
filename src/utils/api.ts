@@ -60,8 +60,26 @@ const putApi = (url, payload) => {
   return result;
 };
 
+const deleteApi = url => {
+  const result = axios
+    .delete('http://localhost:9100/api/' + url, config)
+    .then(response => {
+      return {
+        status: 'success',
+        data: response,
+      };
+    })
+    .catch(error => {
+      return {
+        status: 'error',
+        data: error.response.status,
+      };
+    });
+  return result;
+};
+
 const getApi = url => {
   return axios.get('http://localhost:9100/api/' + url, config);
 };
 
-export { doApi, putApi, postApi, getApi };
+export { doApi, putApi, postApi, getApi, deleteApi };

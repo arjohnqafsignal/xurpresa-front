@@ -36,8 +36,9 @@ import {
 } from 'availity-reactstrap-validation';
 
 import { philData } from 'addresspinas';
-import { updateUserAuth } from './../../helpers/localStorage';
-import { postApi, putApi, getApi } from './../../../utils/api';
+import { updateUserAuth, updateUser } from './../../helpers/localStorage';
+import { postApi, putApi, getApi, deleteApi } from './../../../utils/api';
+import { FileType } from 'rsuite/lib/Uploader';
 interface Props {}
 
 function previewFile(file, callback) {
@@ -65,11 +66,16 @@ export function AgentAccountSetup(props: Props) {
   const [selectedCM, selectCM] = useState([] as any);
   const [filteredProvinces, filterProvinces] = useState([] as any);
   const [filteredCM, filterCM] = useState([] as any);
+
+  const [setupSubmit, setSetupSubmit] = useState(true);
+
   const [addModal, setAddModal] = useState(false);
   const [editModal, setEditModal] = useState(false);
-  const [serviceURL, setServiceURL] = useState('' as any);
+  const [deleteModal, setDeleteModal] = useState(false);
+
   const [uploadURL, setUploadURL] = useState('' as any);
   const [uploadEditURL, setUploadEditURL] = useState('' as any);
+
   const [serviceName, setServiceName] = useState(null);
   const [servicePrice, setServicePrice] = useState(null);
   const [servicePersonalized, setServicePersonalized] = useState(false);
@@ -77,7 +83,9 @@ export function AgentAccountSetup(props: Props) {
   const [serviceDescription, setServiceDescription] = useState(null);
   const [servicePhotos, setServicePhotos] = useState([] as any);
   const [addServiceButton, setServiceButton] = useState(true);
+  const [updateServiceButton, setUpdateServiceButton] = useState(true);
   const [services, setServices] = useState([] as any);
+  const [isLoading, setLoading] = useState(false);
 
   //Edit Service Form
   const [editServiceID, setEditServiceID] = useState('');
@@ -87,38 +95,53 @@ export function AgentAccountSetup(props: Props) {
   const [editServicePersonalized, setEditServicePersonalized] = useState(false);
   const [editServicePackage, setEditServicePackage] = useState(false);
   const [editServicePhotos, setEditServicePhotos] = useState([]);
+  const [removeServicePhotos, setRemoveServicePhotos] = useState([] as any);
+
+  const [deleteServiceId, setDeleteServiceId] = useState('');
+
   let serviceUploader, serviceEditUploader;
   const handleChange = files => {
     files.length > 0 && setServiceButton(false);
-    setServicePhotos(files);
     console.log(files);
   };
 
-  const handleEditServiceSubmit = () => {
-    postApi(`service/edit-service/${editServiceID}`, {
+  const handleUpdateChange = files => {
+    files.length > 0 && setUpdateServiceButton(false);
+    setServicePhotos(files);
+  };
+
+  const handleUpdateServiceSubmit = () => {
+    setLoading(true);
+    putApi(`service/update-service/${editServiceID}`, {
       name: editServiceName,
       price: editServicePrice,
       description: editServiceDescription,
       personalized: editServicePersonalized,
       package: editServicePackage,
+      removedPhotos: removeServicePhotos,
     }).then(value => {
       setUploadEditURL(
-        `http://localhost:9100/api/service/edit-service-photos/${value.data._id}`,
+        `http://localhost:9100/api/service/update-service-photos/${editServiceID}`,
       );
-      // const timer = setTimeout(() => {
-      //   getApi(`service/get-services/${user._id}`)
-      //     .then(response => response)
-      //     .then(response => {
-      //       setServices(response.data);
-      //     })
-      //     .catch(error => {
-      //       console.log(error);
-      //     });
-      //   setAddModal(false);
-      // }, 2000);
+      setTimeout(() => {
+        getApi(`service/get-services/${user._id}`)
+          .then(response => response)
+          .then(response => {
+            console.log(response);
+            Alert.success('Successfully Updated!');
+            setEditModal(false);
+            setServices(response.data);
+          })
+          .catch(error => {
+            console.log(error);
+          });
+
+        setLoading(false);
+      }, 3000);
     });
   };
   const handleServiceSubmit = () => {
+    setLoading(true);
     postApi(`service/add-service/${user._id}`, {
       name: serviceName,
       price: servicePrice,
@@ -129,29 +152,56 @@ export function AgentAccountSetup(props: Props) {
       setUploadURL(
         `http://localhost:9100/api/service/service-photos/${value.data._id}`,
       );
-      // const timer = setTimeout(() => {
-      //   getApi(`service/get-services/${user._id}`)
-      //     .then(response => response)
-      //     .then(response => {
-      //       setServices(response.data);
-      //     })
-      //     .catch(error => {
-      //       console.log(error);
-      //     });
-      //   setAddModal(false);
-      // }, 2000);
+      const timer = setTimeout(() => {
+        getApi(`service/get-services/${user._id}`)
+          .then(response => response)
+          .then(response => {
+            setServices(response.data);
+          })
+          .catch(error => {
+            console.log(error);
+          });
+        setLoading(false);
+        setAddModal(false);
+      }, 2000);
     });
   };
 
-  const handleSubmit = evt => {
+  const handleDeleteService = serviceId => {
+    setDeleteModal(true);
+    setDeleteServiceId(serviceId);
+  };
+
+  const submitDeleteService = () => {
+    console.log(deleteServiceId);
+    deleteApi(`service/delete-service/${deleteServiceId}`)
+      .then(response => response)
+      .then(response => {
+        const newServiceList = services.filter(
+          service => service._id !== deleteServiceId,
+        );
+        setDeleteModal(false);
+        setServices(newServiceList);
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  };
+
+  const handleFinalSubmit = evt => {
     evt.preventDefault();
     const areaCoverage = {
       regions: selectedRegions,
       provinces: selectedProvinces,
       citiesMunicipalities: selectedCM,
     };
-    const result = putApi(`agent/update-coverage/${user._id}`, {
+    putApi(`agent/update-coverage/${user._id}`, {
       areaCoverage,
+    }).then(response => {
+      if (response.status === 'success') {
+        updateUser(response.data.data);
+        window.location.reload();
+      }
     });
   };
 
@@ -183,7 +233,6 @@ export function AgentAccountSetup(props: Props) {
     });
     filterProvinces(filteredProvinces);
     filterCM(cms);
-    uploadURL && serviceUploader.start();
   }, [
     selectedRegions,
     provinces,
@@ -191,16 +240,28 @@ export function AgentAccountSetup(props: Props) {
     citiesAndMunicipals,
     selectedProvinces,
     filterCM,
-    uploadURL,
-    serviceUploader,
   ]);
+  useEffect(() => {
+    uploadURL && serviceUploader.start();
+  }, [uploadURL, serviceUploader]);
 
+  useEffect(() => {
+    uploadEditURL && serviceEditUploader.start();
+  }, [uploadEditURL, serviceEditUploader]);
+
+  useEffect(() => {
+    if (services.length > 0) {
+      setSetupSubmit(false);
+    } else {
+      setSetupSubmit(true);
+    }
+  }, [services]);
   return (
     <div>
       <Row className="mt-4">
         <Col md={12}>
           <h1>Setup Account</h1>
-          <Form onSubmit={handleSubmit}>
+          <Form onSubmit={handleFinalSubmit}>
             <Row>
               <Col md={4}>
                 <h4>Update Profile Picture</h4>
@@ -315,37 +376,46 @@ export function AgentAccountSetup(props: Props) {
                         services.map(service => {
                           let [primaryPhoto] = service.photos;
                           return (
-                            <Col
-                              key={service._id}
-                              md={2}
-                              className="btn"
-                              onClick={() => {
-                                const uploadedPhotos = service.photos;
-                                const photos = uploadedPhotos.map(e => {
-                                  return {
-                                    name: e.key,
-                                    fileKey: e.key,
-                                    url: e.location,
-                                  };
-                                });
-                                console.log(photos);
-                                setEditServiceID(service._id);
-                                setEditServicePhotos(photos);
-                                setEditServiceName(service.name);
-                                setEditServicePrice(service.price);
-                                setEditServiceDescription(service.description);
-                                setEditServicePackage(service.package);
-                                setEditServicePersonalized(
-                                  service.personalized,
-                                );
-                                setEditModal(true);
-                              }}
-                            >
+                            <Col key={service._id} md={2} className="btn">
+                              <Icon
+                                icon="minus-square"
+                                size="2x"
+                                style={{
+                                  position: 'absolute',
+                                  top: 0,
+                                  right: 5,
+                                }}
+                                className="text-danger"
+                                onClick={() => handleDeleteService(service._id)}
+                              />
                               <Panel
                                 shaded
                                 bordered
                                 bodyFill
                                 style={{ display: 'inline-block', width: 150 }}
+                                onClick={() => {
+                                  const uploadedPhotos = service.photos;
+                                  const photos = uploadedPhotos.map(e => {
+                                    return {
+                                      name: e.key,
+                                      fileKey: e.key,
+                                      url: e.location,
+                                    };
+                                  });
+                                  console.log(photos);
+                                  setEditServiceID(service._id);
+                                  setEditServicePhotos(photos);
+                                  setEditServiceName(service.name);
+                                  setEditServicePrice(service.price);
+                                  setEditServiceDescription(
+                                    service.description,
+                                  );
+                                  setEditServicePackage(service.package);
+                                  setEditServicePersonalized(
+                                    service.personalized,
+                                  );
+                                  setEditModal(true);
+                                }}
                               >
                                 <img
                                   src={primaryPhoto.location}
@@ -362,7 +432,9 @@ export function AgentAccountSetup(props: Props) {
               </Col>
             </Row>
             <FormGroup className="float-right mt-3">
-              <Button color="success">Submit</Button>
+              <Button color="success" disabled={setupSubmit}>
+                Submit
+              </Button>
             </FormGroup>
           </Form>
         </Col>
@@ -497,6 +569,7 @@ export function AgentAccountSetup(props: Props) {
                 </Uploader>
               </Col>
             </Row>
+            {isLoading && <Loader backdrop content="loading..." vertical />}
           </Modal.Body>
           <Modal.Footer className="mt-3">
             <Button
@@ -544,7 +617,7 @@ export function AgentAccountSetup(props: Props) {
                       value: 50,
                     },
                   }}
-                  onChange={e => setServiceName(e.target.value)}
+                  onChange={e => setEditServiceName(e.target.value)}
                 />
               </Col>
             </Row>
@@ -560,7 +633,7 @@ export function AgentAccountSetup(props: Props) {
                       id="price"
                       type="number"
                       required
-                      onChange={e => setServicePrice(e.target.value)}
+                      onChange={e => setEditServicePrice(e.target.value)}
                     />
                     <AvFeedback>
                       Please provide valid price for your service.
@@ -586,7 +659,7 @@ export function AgentAccountSetup(props: Props) {
                       value: 50,
                     },
                   }}
-                  onChange={e => setServiceDescription(e.target.value)}
+                  onChange={e => setEditServiceDescription(e.target.value)}
                 />
               </Col>
             </Row>
@@ -635,12 +708,19 @@ export function AgentAccountSetup(props: Props) {
                   listType="picture"
                   defaultFileList={editServicePhotos}
                   autoUpload={false}
-                  action={uploadURL}
+                  action={uploadEditURL}
                   headers={{ Authorization: `Bearer ${token}` }}
-                  onChange={handleChange}
+                  onChange={handleUpdateChange}
                   onError={(reason: Object) => {
-                    console.log(reason);
                     Alert.error('Upload failed');
+                  }}
+                  onSuccess={response => {
+                    Alert.success('Upload successful.');
+                  }}
+                  onRemove={file => {
+                    let fileKey = file.fileKey;
+                    let removed = removeServicePhotos.concat(fileKey);
+                    setRemoveServicePhotos(removed);
                   }}
                   ref={ref => {
                     serviceEditUploader = ref;
@@ -652,13 +732,10 @@ export function AgentAccountSetup(props: Props) {
                 </Uploader>
               </Col>
             </Row>
+            {isLoading && <Loader backdrop content="loading..." vertical />}
           </Modal.Body>
           <Modal.Footer className="mt-3">
-            <Button
-              onClick={handleEditServiceSubmit}
-              disabled={addServiceButton}
-              color="secondary"
-            >
+            <Button onClick={handleUpdateServiceSubmit} color="secondary">
               Save
             </Button>{' '}
             |{' '}
@@ -667,6 +744,26 @@ export function AgentAccountSetup(props: Props) {
             </Button>
           </Modal.Footer>
         </AvForm>
+      </Modal>
+      <Modal
+        backdrop="static"
+        show={deleteModal}
+        onHide={() => {
+          setEditModal(false);
+          setDeleteServiceId('');
+        }}
+        size="xs"
+      >
+        <Modal.Body>Are you sure to delete the service?</Modal.Body>
+        <Modal.Footer>
+          <Button color="secondary" onClick={submitDeleteService}>
+            Ok
+          </Button>{' '}
+          |{' '}
+          <Button onClick={() => setDeleteModal(false)} color="danger">
+            Cancel
+          </Button>
+        </Modal.Footer>
       </Modal>
     </div>
   );

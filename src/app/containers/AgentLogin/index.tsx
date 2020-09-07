@@ -48,8 +48,6 @@ export function AgentLogin(props: Props) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const history = useHistory();
-
   const handleSubmit = evt => {
     evt.preventDefault();
     setLoginButton(true);
@@ -69,7 +67,7 @@ export function AgentLogin(props: Props) {
     if (loginSuccess) {
       window.location.href = '/agent-dashboard';
     }
-  }, [loginSuccess, loginError, setLoginButton, history]);
+  }, [loginSuccess, loginError, setLoginButton]);
 
   return (
     <>

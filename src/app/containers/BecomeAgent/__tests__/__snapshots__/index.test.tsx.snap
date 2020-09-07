@@ -1,0 +1,181 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<BecomeAgent /> should match the snapshot 1`] = `
+<div
+  class="mt-5 row"
+>
+  <div
+    class="mt-5 col-lg-5"
+  >
+    <div
+      class="card"
+    >
+      <div
+        class="card-body"
+      >
+        <form
+          action="#"
+          class="av-valid"
+          method="get"
+          novalidate=""
+        >
+          
+          
+          <div
+            class="form-group"
+          >
+            <label
+              class=""
+              for="name"
+            >
+              Full Name
+            </label>
+            <input
+              class="is-untouched is-pristine av-valid form-control"
+              id="name"
+              maxlength="50"
+              name="fullName"
+              required=""
+              type="text"
+              value="Arjohn Quijano"
+            />
+          </div>
+          <div
+            class="form-group"
+          >
+            <label
+              class=""
+              for="email"
+            >
+              Email
+            </label>
+            <input
+              class="is-untouched is-pristine av-valid form-control"
+              id="email"
+              maxlength="50"
+              name="email"
+              required=""
+              type="email"
+              value=""
+            />
+          </div>
+          <div
+            class="form-group"
+          >
+            <label
+              class=""
+              for="mobile_number"
+            >
+              Mobile Number
+            </label>
+            <input
+              class="is-untouched is-pristine av-valid form-control"
+              id="mobile_number"
+              maxlength="50"
+              name="mobile_number"
+              pattern="^[0-9]+$"
+              required=""
+              type="text"
+              value="1234567"
+            />
+          </div>
+          <div
+            class="form-group"
+          >
+            <label
+              class=""
+              for="company"
+            >
+              Company (Optional)
+            </label>
+            <input
+              class="is-untouched is-pristine av-valid form-control"
+              id="company"
+              maxlength="50"
+              name="company"
+              type="text"
+              value="SingleDraft"
+            />
+          </div>
+          <div
+            class="form-group"
+          >
+            <label
+              class=""
+              for="password"
+            >
+              Password
+            </label>
+            <input
+              class="is-untouched is-pristine av-valid form-control"
+              id="password"
+              minlength="8"
+              name="password"
+              required=""
+              type="password"
+              value=""
+            />
+          </div>
+          <div
+            class="form-group"
+          >
+            <label
+              class=""
+              for="confirm_password"
+            >
+              Confirm Password
+            </label>
+            <input
+              class="is-untouched is-pristine av-valid form-control"
+              id="confirm_password"
+              name="confirm_password"
+              required=""
+              type="password"
+              value=""
+            />
+          </div>
+          <div
+            class="form-check"
+          >
+            <input
+              class="is-untouched is-pristine av-valid form-check-input"
+              id="terms"
+              name="terms"
+              required=""
+              type="checkbox"
+              value="false"
+            />
+            <label
+              class="form-check-label"
+              for="terms"
+            >
+               
+              I agree to the terms of service and privacy policy.
+            </label>
+          </div>
+          <div
+            class="mt-4 form-group"
+          >
+            <button
+              class="btn btn-success btn-block disabled"
+              disabled=""
+              type="submit"
+            >
+              Get Started for Free
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div
+    class="mt-5 col-lg-7"
+  >
+    <div>
+      <h1>
+        Be One of our Agents
+      </h1>
+    </div>
+  </div>
+</div>
+`;
